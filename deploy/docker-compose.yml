@@ -1,0 +1,24 @@
+services:
+  agent:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+    image: access-investigation-agent:local
+    environment:
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY:-}
+      AGENT_DB_PATH: /data/access_snapshot.sqlite
+      AGENT_RUN_STORE_DIR: /runs
+    volumes:
+      # DB mounted read-only — even if the container tried to write, the FS blocks it.
+      - ../input_data:/data:ro
+      - ../runs:/runs
+    ports:
+      - "8080:8080"
+    read_only: false  # /runs must be writable; the app itself never writes to /app
+    cap_drop: [ALL]
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: ["CMD", "python", "-c", "import httpx; httpx.get('http://127.0.0.1:8080/healthz', timeout=3).raise_for_status()"]
+      interval: 15s
+      retries: 3
