@@ -6,9 +6,6 @@ token.txt
 *.key
 *.pem
 
-# Submission attachments
-transcript.md
-
 # Python bytecode and tool caches
 __pycache__/
 *.py[cod]
